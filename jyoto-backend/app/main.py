@@ -37,7 +37,13 @@ app.include_router(low_bandwidth_router)
 
 # 1. CORS Middleware Configuration
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:3000")
-CORS_ORIGINS = [FRONTEND_URL, "http://localhost:3000", "http://localhost:8000"]
+CORS_ORIGINS = [
+    FRONTEND_URL,
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "https://jyoto-1.vercel.app",
+    "*"  # Temporary: Allow all origins for debugging
+]
 
 app.add_middleware(
     CORSMiddleware,
