@@ -1,0 +1,9 @@
+﻿fastapi
+uvicorn
+groq
+deep-translator
+gTTS
+SpeechRecognition
+python-multipart
+PyPDF2
+python-docx

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jyoto Backend Diagnostic</title>
+    <script src="https://cdn.tailw
+    
+    indcss.com"></script>
+    <style>
+        .card { @apply bg-white p-6 rounded-xl shadow-md mb-6 border border-gray-100; }
+        .btn { @apply px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium; }
+        .input { @apply w-full p-2 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 outline-none; }
+        pre { @apply bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-8 text-gray-800">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-blue-900 mb-2">Jyoto Diagnostic Suite</h1>
+            <p class="text-gray-600">Testing all backend accessibility modules</p>
+        </header>
+
+        <!-- 1. Explain Concept -->
+        <section class="card">
+            <h2 class="text-xl font-bold mb-4">🧠 AI Concept Explainer</h2>
+            <input id="explain-concept" class="input" placeholder="Enter concept (e.g., Photosynthesis)" value="Quantum Physics">
+            <input id="explain-lang" class="input" placeholder="Target Language (e.g., hindi, spanish)" value="hindi">
+            <button onclick="testExplain()" class="btn">Explain Concept</button>
+            <div id="explain-res" class="mt-4 hidden"><pre></pre></div>
+        </section>
+
+        <!-- 2. TTS -->
+        <section class="card">
+            <h2 class="text-xl font-bold mb-4">🔊 Text-to-Speech</h2>
+            <input id="tts-text" class="input" placeholder="Text to speak" value="Welcome to Jyoto. Accessibility matters.">
+            <button onclick="testTTS()" class="btn">Generate Audio</button>
+            <audio id="tts-player" controls class="mt-4 hidden w-full"></audio>
+        </section>
+
+        <!-- 3. AI Tutor -->
+        <section class="card">
+            <h2 class="text-xl font-bold mb-4">🎓 Multilingual AI Tutor</h2>
+            <input id="tutor-query" class="input" placeholder="Ask anything..." value="Why is the sky blue?">
+            <button onclick="testTutor()" class="btn">Ask Tutor</button>
+            <div id="tutor-res" class="mt-4 hidden">
+                <p id="tutor-text" class="mb-4 p-4 bg-blue-50 rounded-lg italic"></p>
+                <audio id="tutor-player" controls class="w-full"></audio>
+            </div>
+        </section>
+
+        <!-- 4. Teacher Dashboard -->
+        <section class="card">
+            <h2 class="text-xl font-bold mb-4">📊 Inclusive Dashboard</h2>
+            <input id="dash-title" class="input" value="Introduction to Cells">
+            <textarea id="dash-text" class="input h-32" placeholder="Paste dense lesson text here...">Cells are the basic building blocks of all living things. The human body is composed of trillions of cells. They provide structure for the body, take in nutrients from food, and convert those nutrients into energy.</textarea>
+            <button onclick="testDashboard()" class="btn">Process Lesson</button>
+            <div id="dash-res" class="mt-4 hidden">
+                <h3 class="font-bold">Braille Version:</h3>
+                <p id="dash-braille" class="text-2xl p-4 bg-gray-100 rounded-lg break-all mb-4"></p>
+                <h3 class="font-bold">AI Summary:</h3>
+                <div id="dash-summary" class="p-4 border rounded-lg bg-white text-sm"></div>
+            </div>
+        </section>
+
+        <!-- 5. Low Bandwidth -->
+        <section class="card">
+            <h2 class="text-xl font-bold mb-4">📶 Low-Bandwidth Engine</h2>
+            <input id="lb-topic" class="input" value="Newton's Laws">
+            <button onclick="testLowBandwidth()" class="btn">Generate Minified Package</button>
+            <div id="lb-res" class="mt-4 hidden">
+                <p class="text-sm font-bold text-red-600 mb-2">Payload Optimized (Compressed JSON)</p>
+                <pre id="lb-pre"></pre>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const BASE_URL = "http://localhost:8000";
+
+        async function testExplain() {
+            const concept = document.getElementById('explain-concept').value;
+            const lang = document.getElementById('explain-lang').value;
+            const btn = event.target;
+            btn.innerText = "Processing...";
+            
+            try {
+                const res = await fetch(`${BASE_URL}/api/explain`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ concept, target_language: lang })
+                });
+                const data = await res.json();
+                document.getElementById('explain-res').classList.remove('hidden');
+                document.getElementById('explain-res').querySelector('pre').innerText = JSON.stringify(data, null, 2);
+            } catch (e) { alert("Error: " + e); }
+            btn.innerText = "Explain Concept";
+        }
+
+        async function testTTS() {
+            const text = document.getElementById('tts-text').value;
+            const url = `${BASE_URL}/api/tts?text=${encodeURIComponent(text)}&lang=en`;
+            const player = document.getElementById('tts-player');
+            player.src = url;
+            player.classList.remove('hidden');
+            player.play();
+        }
+
+        async function testTutor() {
+            const query = document.getElementById('tutor-query').value;
+            const btn = event.target;
+            btn.innerText = "Tutor is thinking...";
+
+            try {
+                const res = await fetch(`${BASE_URL}/api/tutor/ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_query: query, target_lang: "en" })
+                });
+                const data = await res.json();
+                document.getElementById('tutor-res').classList.remove('hidden');
+                document.getElementById('tutor-text').innerText = data.english_response;
+                document.getElementById('tutor-player').src = data.audio_base64;
+                document.getElementById('tutor-player').play();
+            } catch (e) { alert("Error: " + e); }
+            btn.innerText = "Ask Tutor";
+        }
+
+        async function testDashboard() {
+            const title = document.getElementById('dash-title').value;
+            const text = document.getElementById('dash-text').value;
+            const btn = event.target;
+            btn.innerText = "Transforming...";
+
+            try {
+                const res = await fetch(`${BASE_URL}/api/dashboard/process-lesson`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lesson_title: title, raw_lesson_text: text })
+                });
+                const data = await res.json();
+                document.getElementById('dash-res').classList.remove('hidden');
+                document.getElementById('dash-braille').innerText = data.braille_version;
+                document.getElementById('dash-summary').innerText = data.simplified_summary;
+            } catch (e) { alert("Error: " + e); }
+            btn.innerText = "Process Lesson";
+        }
+
+        async function testLowBandwidth() {
+            const topic = document.getElementById('lb-topic').value;
+            try {
+                const res = await fetch(`${BASE_URL}/api/low-bandwidth/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic: topic, grade_level: "High School" })
+                });
+                const data = await res.json();
+                document.getElementById('lb-res').classList.remove('hidden');
+                document.getElementById('lb-pre').innerText = JSON.stringify(data);
+            } catch (e) { alert("Error: " + e); }
+        }
+    </script>
+</body>
+</html>
