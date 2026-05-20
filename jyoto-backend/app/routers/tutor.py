@@ -2,6 +2,10 @@ import os
 import io
 import base64
 import logging
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from fastapi import APIRouter, HTTPException, status, File, UploadFile
 from pydantic import BaseModel
 from groq import Groq

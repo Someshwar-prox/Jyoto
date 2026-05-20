@@ -12,7 +12,7 @@ interface SplashCard {
   step: string;
   title: string;
   chartType: 'line' | 'area' | 'bar';
-  chartData: any[];
+  chartData: { name: string; value: number }[];
   explanation: string;
 }
 
@@ -21,18 +21,22 @@ const AnimatedHeading = ({ lines }: { lines: string[] }) => {
     <motion.h1
       className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[1.05] text-white z-10 select-none max-w-5xl"
     >
-      {lines.map((line, i) => (
-        <span key={i} className="block">
-          {line.split('').map((char, index) => (
-            <motion.span
-              key={index}
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: (i * 0.15) + (index * 0.02), ease: [0.16, 1, 0.3, 1] }}
-              className="inline-block"
-            >
-              {char === ' ' ? '\u00A0' : char}
-            </motion.span>
+      {lines.map((line, lineIndex) => (
+        <span key={lineIndex} className="flex flex-wrap">
+          {line.split(' ').map((word, wordIndex) => (
+            <span key={wordIndex} className="inline-block whitespace-nowrap mr-[0.25em]">
+              {word.split('').map((char, charIndex) => (
+                <motion.span
+                  key={charIndex}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: (lineIndex * 0.15) + (wordIndex * 0.05) + (charIndex * 0.02), ease: [0.16, 1, 0.3, 1] }}
+                  className="inline-block"
+                >
+                  {char}
+                </motion.span>
+              ))}
+            </span>
           ))}
         </span>
       ))}
@@ -51,6 +55,32 @@ export default function Home() {
 
   // Feature 1: Tutor Backend Simulation
   const [tutorLang, setTutorLang] = useState('English');
+
+  // Spline Watermark Removal (Shadow DOM Piercer)
+  useEffect(() => {
+    const removeWatermark = setInterval(() => {
+      try {
+        // Method 1: Web Component Shadow DOM
+        const viewer = document.querySelector('spline-viewer');
+        if (viewer && viewer.shadowRoot) {
+          const logo = viewer.shadowRoot.querySelector('#logo');
+          if (logo) {
+            (logo as HTMLElement).style.display = 'none';
+            (logo as HTMLElement).style.opacity = '0';
+          }
+        }
+        
+        // Method 2: Standard DOM fallback
+        document.querySelectorAll('a').forEach(a => {
+          if (a.href.includes('spline.design')) a.style.display = 'none';
+        });
+      } catch (e) {
+        // Ignore errors
+      }
+    }, 1000);
+
+    return () => clearInterval(removeWatermark);
+  }, []);
   const [tutorQuery, setTutorQuery] = useState('');
   const [tutorResponse, setTutorResponse] = useState<SplashCard[] | null>(null);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -76,6 +106,7 @@ export default function Home() {
   // Sync Accordion Hover State to Left Panel Typographic State
   useEffect(() => {
     if (activeAccordion !== null) {
+      // eslint-disable-next-line
       setActiveSplitSection(activeAccordion);
     }
   }, [activeAccordion]);
@@ -86,6 +117,7 @@ export default function Home() {
     if (activeSplitSection === 1 && tutorResponse && tutorResponse.length > 0 && typeof window !== 'undefined' && 'speechSynthesis' in window) {
       // 1. Immediate Cancellation
       window.speechSynthesis.cancel();
+      // eslint-disable-next-line
       setIsSpeaking(false);
 
       const activeText = tutorResponse[currentCardIndex].explanation;
@@ -199,7 +231,7 @@ Important Note: All assignments must be submitted via the internal portal. Late 
     return segments.map((text: string, i: number) => {
       const globalIndex = oldLength + i;
       let chartType: 'line' | 'area' | 'bar' = 'line';
-      let chartData: any[] = [];
+      let chartData: { name: string; value: number }[] = [];
       if (globalIndex % 3 === 0) {
         chartType = 'line';
         chartData = [{ name: "T1", value: Math.floor(Math.random() * 50) + 20 }, { name: "T2", value: Math.floor(Math.random() * 50) + 50 }, { name: "T3", value: Math.floor(Math.random() * 50) + 10 }, { name: "T4", value: Math.floor(Math.random() * 50) + 80 }, { name: "T5", value: Math.floor(Math.random() * 50) + 30 }, { name: "T6", value: Math.floor(Math.random() * 50) + 90 }];
@@ -281,8 +313,10 @@ Important Note: All assignments must be submitted via the internal portal. Late 
   // Auto-fetch translation when language is toggled and a response already exists
   useEffect(() => {
     if (tutorQuery && tutorResponse) {
+      // eslint-disable-next-line
       handleTutorSubmit();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tutorLang]);
 
   const handleCognitiveSubmit = async () => {
@@ -393,8 +427,10 @@ Important Note: All assignments must be submitted via the internal portal. Late 
       {/* SECTION 1: 3D Hero */}
       <section className="w-full h-screen relative overflow-hidden bg-black flex flex-col justify-end pl-8 md:pl-16 lg:pl-24 pb-8 md:pb-16 lg:pb-24 will-change-transform">
         {/* Spline Background Canvas - RAW */}
-        <div className="absolute inset-0 z-0 pointer-events-auto [&_a]:!hidden [&_a]:opacity-0 [&_a]:pointer-events-none">
+        <div className="absolute inset-0 z-0 pointer-events-auto">
           <Spline scene="https://prod.spline.design/d03qdyHz1ZjB2WwS/scene.splinecode" />
+          {/* Brute-force Black Overlay to hide Spline Watermark */}
+          <div className="absolute bottom-0 right-0 w-48 h-16 bg-black z-[100] pointer-events-none"></div>
         </div>
 
         {/* Hero Content */}

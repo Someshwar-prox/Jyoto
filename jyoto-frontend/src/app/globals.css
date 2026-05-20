@@ -37,3 +37,12 @@ body {
 .animate-fade-in {
   animation: fade-in 1.5s ease-out forwards;
 }
+
+/* Force hide any Spline 3D watermarks */
+a[href*="spline.design"],
+[id*="spline-logo"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

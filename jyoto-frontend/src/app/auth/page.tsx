@@ -19,7 +19,6 @@ export default function AuthPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [error, setError] = useState<string | null>(null);
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -36,20 +35,34 @@ export default function AuthPage() {
   const handleContinue = async (e: React.MouseEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!username || !password) {
+      setError("Username and password are required.");
+      return;
+    }
+
+    if (mode === 'register' && password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+    
+    // Supabase strictly requires an email. We generate a hidden one based on the username.
+    const syntheticEmail = `${username.toLowerCase().replace(/[^a-z0-9]/g, '')}@jyoto.app`;
     
     if (mode === 'login') {
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: syntheticEmail,
         password,
       });
       if (error) {
-        setError(error.message);
+        // Rewrite Supabase's email error message to make sense for usernames
+        setError(error.message.replace("Invalid login credentials", "Invalid username or password"));
       } else {
         router.push("/");
       }
     } else {
       const { error } = await supabase.auth.signUp({
-        email,
+        email: syntheticEmail,
         password,
         options: {
           data: { username }
@@ -189,29 +202,7 @@ export default function AuthPage() {
                 </div>
               </motion.div>
 
-              {/* Email Field - Hidden in Login Mode */}
-              <AnimatePresence>
-                {mode === 'register' && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
-                    animate={{ opacity: 1, height: 'auto', overflow: 'visible' }}
-                    exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
-                    transition={{ duration: 0.3 }}
-                    className="relative"
-                  >
-                    <input
-                      type="email"
-                      placeholder="your.email@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className={inputClasses}
-                    />
-                    <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-4 text-white/50">
-                      <AtSign className="size-4" aria-hidden="true" />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+
 
               {/* Password Field */}
               <motion.div layout className="relative">

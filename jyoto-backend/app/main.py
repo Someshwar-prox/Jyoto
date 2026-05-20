@@ -2,6 +2,9 @@ import os
 import io
 import logging
 from typing import Optional
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from fastapi import FastAPI, HTTPException, File, UploadFile, Query, status
 from fastapi.middleware.cors import CORSMiddleware
