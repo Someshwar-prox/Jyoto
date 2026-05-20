@@ -19,7 +19,7 @@ interface SplashCard {
 const AnimatedHeading = ({ lines }: { lines: string[] }) => {
   return (
     <motion.h1
-      className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[1.05] text-white z-10 select-none max-w-5xl"
+      className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[1.05] text-white z-10 select-none max-w-5xl"
     >
       {lines.map((line, lineIndex) => (
         <span key={lineIndex} className="flex flex-wrap">
@@ -429,7 +429,7 @@ Important Note: All assignments must be submitted via the internal portal. Late 
       </nav>
 
       {/* SECTION 1: 3D Hero */}
-      <section className="w-full h-screen relative overflow-hidden bg-black flex flex-col justify-end pl-8 md:pl-16 lg:pl-24 pb-8 md:pb-16 lg:pb-24 will-change-transform">
+      <section className="w-full min-h-[100svh] relative overflow-hidden bg-black flex flex-col justify-end pl-8 md:pl-16 lg:pl-24 pb-8 md:pb-16 lg:pb-24 pt-32 will-change-transform">
         {/* Spline Background Canvas - RAW */}
         <div className="absolute inset-0 z-0 pointer-events-auto">
           <Spline scene="https://prod.spline.design/d03qdyHz1ZjB2WwS/scene.splinecode" />
@@ -438,7 +438,7 @@ Important Note: All assignments must be submitted via the internal portal. Late 
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 w-full max-w-4xl lg:max-w-3xl mb-24 md:mb-32 pointer-events-none animate-fade-in text-left pr-8">
+        <div className="relative z-10 w-full max-w-4xl lg:max-w-3xl mt-auto mb-12 sm:mb-24 md:mb-32 pointer-events-none animate-fade-in text-left pr-8">
           <AnimatedHeading lines={["Education without", "barriers and boundaries."]} />
 
           <div className="flex flex-wrap items-center gap-6 mt-12 pointer-events-auto">
