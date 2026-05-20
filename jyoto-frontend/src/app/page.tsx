@@ -260,10 +260,10 @@ Important Note: All assignments must be submitted via the internal portal. Late 
       const data = await res.json();
       setTutorResponse(generateDynamicCards(data.translated_text || "No valid response.", "ANALYZING", queryUpper));
       setCurrentCardIndex(0);
-    } catch (e) {
-      const errorText = `[ERROR 502]: Local FastAPI backend on port 8000 is unreachable.\n\nSimulated AI Response: Groq inference pipeline offline for '${tutorQuery}'.\n\nPlease ensure your Python backend is running via the launch script.`;
-      setTutorResponse(generateDynamicCards(errorText, "ANALYZING", queryUpper));
-      setCurrentCardIndex(0);
+    } catch (err: any) {
+      console.error("Fetch Error:", err);
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+      setTutorResponse([{ step: "ERROR", title: "CONNECTION FAILED", chartType: "line", chartData: [], explanation: `[ERROR]: Tried to reach ${backendUrl}. It failed! Error: ${err.message}` }]);
     } finally {
       setTimeout(() => setTutorLoading(false), 800);
     }
