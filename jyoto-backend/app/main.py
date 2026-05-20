@@ -50,8 +50,8 @@ CORS_ORIGINS = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
-    allow_credentials=True,
+    allow_origins=["*"], # Allow Vercel frontend to communicate
+    allow_credentials=False, # Must be False when origins is "*"
     allow_methods=["*"],
     allow_headers=["*"],
 )
