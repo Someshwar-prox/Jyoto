@@ -254,7 +254,8 @@ Important Note: All assignments must be submitted via the internal portal. Late 
     setTutorResponse([{ step: "01 / 01", title: `INITIALIZING: ${queryUpper}`, chartType: "line", chartData: [{ name: "0ms", value: 40 }, { name: "10ms", value: 95 }, { name: "20ms", value: 35 }, { name: "30ms", value: 85 }, { name: "40ms", value: 50 }, { name: "50ms", value: 100 }], explanation: `Establishing secure pipeline for '${tutorQuery}'. Waiting for local FastAPI resolution...` }]);
 
     try {
-      const res = await fetch('http://localhost:8000/api/tutor/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_query: tutorQuery, target_lang: tutorLang }) });
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+      const res = await fetch(`${backendUrl}/api/tutor/ask`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_query: tutorQuery, target_lang: tutorLang }) });
       if (!res.ok) throw new Error("FastAPI Unreachable");
       const data = await res.json();
       setTutorResponse(generateDynamicCards(data.translated_text || "No valid response.", "ANALYZING", queryUpper));
@@ -284,9 +285,10 @@ Important Note: All assignments must be submitted via the internal portal. Late 
     setCurrentCardIndex(oldLength);
 
     try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
       if (isBounded) {
         const hiddenPrompt = `Answer the user's question using ONLY the provided document context below. Do not guess, do not generalize outside the document, and do not make generic assumptions based on the title.\n\nContext: ${extractedFileText}\n\nUser Question: ${followUpQuery}`;
-        const res = await fetch('http://localhost:8000/api/tutor/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_query: hiddenPrompt, target_lang: "en" }) });
+        const res = await fetch(`${backendUrl}/api/tutor/ask`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_query: hiddenPrompt, target_lang: "en" }) });
         if (!res.ok) throw new Error("FastAPI Unreachable");
         const data = await res.json();
         setTutorResponse(prev => [...(prev || []).slice(0, oldLength), ...generateDynamicCards(data.translated_text || "No valid response.", baseTitle, queryUpper, oldLength)]);
@@ -294,7 +296,7 @@ Important Note: All assignments must be submitted via the internal portal. Late 
         setFollowUpQuery('');
         setFollowUpLoading(false);
       } else {
-        const res = await fetch('http://localhost:8000/api/tutor/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_query: followUpQuery, target_lang: tutorLang }) });
+        const res = await fetch(`${backendUrl}/api/tutor/ask`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_query: followUpQuery, target_lang: tutorLang }) });
         if (!res.ok) throw new Error("FastAPI Unreachable");
         const data = await res.json();
         setTutorResponse(prev => [...(prev || []).slice(0, oldLength), ...generateDynamicCards(data.translated_text || "No valid response.", baseTitle, queryUpper, oldLength)]);
@@ -334,7 +336,8 @@ Important Note: All assignments must be submitted via the internal portal. Late 
     }]);
 
     try {
-      const res = await fetch('http://localhost:8000/api/dashboard/process-lesson', {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+      const res = await fetch(`${backendUrl}/api/dashboard/process-lesson`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ lesson_title: cognitiveQuery, raw_lesson_text: cognitiveQuery })
@@ -377,7 +380,8 @@ Important Note: All assignments must be submitted via the internal portal. Late 
     try {
       const hiddenPrompt = `Answer the user's question using ONLY the provided document context below. Do not guess, do not generalize outside the document, and do not make generic assumptions based on the title.\n\nContext: ${extractedFileText}\n\nUser Question: ${currentQuery}`;
 
-      const res = await fetch('http://localhost:8000/api/tutor/ask', {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+      const res = await fetch(`${backendUrl}/api/tutor/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_query: hiddenPrompt, target_lang: "en" })
